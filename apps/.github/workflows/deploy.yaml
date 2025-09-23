@@ -1,0 +1,12 @@
+name: Deploy to SSH Server
+
+on:
+  push:
+    branches: [ main ]
+    
+  workflow_dispatch:
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        

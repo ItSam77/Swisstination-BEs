@@ -1,0 +1,1 @@
+mamah minta kikok
