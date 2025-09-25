@@ -1,0 +1,10 @@
+services:
+  apps:
+    build:
+      context: ./apps
+      dockerfile: Dockerfile
+    container_name: itsam77/swiss-be1:latest
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env

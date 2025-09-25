@@ -18,6 +18,7 @@ class Destination(BaseModel):
     kategori_id: int
     deskripsi: str
     image_url: Optional[str] = None
+    category_name: Optional[str] = None
 
 class DestinationDetails(BaseModel):
     destinasi_id: int  # Changed from str to int to match database
@@ -46,24 +47,42 @@ async def get_all_destinations(current_user: dict = Depends(get_current_user)):
                 detail="Database connection not configured."
             )
         
-        # Fetch all destinations including image_url, ordered by destinasi_id
-        print("Executing Supabase query...")
-        result = supabase.table("destinasi").select(
+        # Fetch all destinations and categories separately, then combine
+        print("Executing Supabase queries...")
+        
+        # Get all destinations
+        dest_result = supabase.table("destinasi").select(
             "destinasi_id, nama_destinasi, kategori_id, deskripsi, image_url"
         ).order("destinasi_id").execute()
         
-        print(f"Query result: {len(result.data) if result.data else 0} destinations found")
-        if result.data:
+        # Get all categories for lookup
+        cat_result = supabase.table("category").select(
+            "kategori_id, nama"
+        ).execute()
+        
+        print(f"Destinations result: {len(dest_result.data) if dest_result.data else 0} destinations found")
+        print(f"Categories result: {len(cat_result.data) if cat_result.data else 0} categories found")
+        
+        if dest_result.data:
+            # Create category lookup dictionary
+            category_lookup = {}
+            if cat_result.data:
+                for cat in cat_result.data:
+                    category_lookup[cat["kategori_id"]] = cat["nama"]
+                print(f"Category lookup: {category_lookup}")
+            
             # Convert data types to match Pydantic model
             destinations = []
-            for dest in result.data:
+            for dest in dest_result.data:
                 destinations.append({
                     "destinasi_id": str(dest["destinasi_id"]),  # Convert to string
                     "nama_destinasi": dest["nama_destinasi"],
                     "kategori_id": int(dest["kategori_id"]),
                     "deskripsi": dest["deskripsi"],
-                    "image_url": dest.get("image_url")
+                    "image_url": dest.get("image_url"),
+                    "category_name": category_lookup.get(dest["kategori_id"], "Unknown Category")
                 })
+            print(f"Returning destinations with categories: {[d['category_name'] for d in destinations[:3]]}")
             return {"destinations": destinations}
         else:
             return {"destinations": []}
