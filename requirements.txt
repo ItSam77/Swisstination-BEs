@@ -9,3 +9,6 @@ python-jose[cryptography]
 passlib[bcrypt]
 scikit-surprise
 pandas
+prometheus-fastapi-instrumentator
+prometheus-client
+numpy<2.0.0

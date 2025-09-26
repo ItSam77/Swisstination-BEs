@@ -2,11 +2,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, preference, category, recommendation_router, destination, review
 
+# For Monitoring
+from prometheus_fastapi_instrumentator import Instrumentator
+
 app = FastAPI(
     title="Swisstination API",
     description="Backend API for Swisstination application",
     version="1.0.0"
 )
+
+# For Monitoring
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 app.add_middleware(
     CORSMiddleware,
