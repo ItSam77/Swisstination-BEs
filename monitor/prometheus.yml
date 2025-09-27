@@ -4,9 +4,9 @@ global:
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:8002']
+      - targets: ['prometheus:9090']
 
   # API Server
   - job_name: 'apps'
     static_configs:
-      - targets: ['localhost:8001']
+      - targets: ['apps:8001']

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import joblib
 
-ARTIFACTS_PATH = "artifacts/model.pkl"
+ARTIFACTS_PATH = "apps/artifacts/model.pkl"
 
 # ===== Load artifacts sekali di import =====
 try:

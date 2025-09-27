@@ -139,11 +139,11 @@ def main():
     print(f"Average rating: {df_ratings['rating'].mean():.2f}")
     print(f"Rating distribution:")
     print(df_ratings['rating'].value_counts().sort_index())
-    print()
+    print() #newline
 
     print("Category distribution:")
     print(df_items['kategori_id'].value_counts().sort_index())
-    print()
+    print() #newline
 
     print("=============================")
     print("Model Performance Metrics:")
@@ -152,10 +152,10 @@ def main():
     cv_results = cross_validate(algo, data, measures=['RMSE', 'MAE'], cv=3, verbose=True)
     print(f"RMSE: {cv_results['test_rmse'].mean():.4f} (+/- {cv_results['test_rmse'].std() * 2:.4f})")
     print(f"MAE: {cv_results['test_mae'].mean():.4f} (+/- {cv_results['test_mae'].std() * 2:.4f})")
-    print()
+    print() #newline
 
     # Create artifacts directory if it doesn't exist
-    os.makedirs("artifacts", exist_ok=True)
+    os.makedirs("apps/artifacts", exist_ok=True)
     
     payload = {
         "algo": algo,
@@ -163,9 +163,9 @@ def main():
         "items_df": df_items[['destinasi_id', 'kategori_id']].copy(),
         "global_mean": trainset.global_mean,
     }
-    joblib.dump(payload, "artifacts/model.pkl")
+    joblib.dump(payload, "apps/artifacts/model.pkl")
 
-    print("✅ Model saved to artifacts/model.pkl")
+    print("✅ Model saved to apps/artifacts/model.pkl")
 
 if __name__ == "__main__":
     main()
