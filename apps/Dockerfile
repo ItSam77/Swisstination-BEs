@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
+COPY ./requirements.txt .
 
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip setuptools wheel
@@ -21,7 +21,9 @@ RUN pip install --no-cache-dir cython==3.0.6 numpy==1.25.2
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY apps/ .
+COPY ./apps/ .
+# Copy monitoring source code
+COPY ./monitor-source/ ../monitor-source/
 
 EXPOSE 8001
 

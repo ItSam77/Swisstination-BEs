@@ -3,9 +3,33 @@ import numpy as np
 import pandas as pd
 import joblib
 
-ARTIFACTS_PATH = "apps/artifacts/model.pkl"
+import os
+
+# Use path that works both locally and in Docker
+# When running locally from the apps directory: "artifacts/model.pkl"
+# When running in Docker (workdir /app, apps copied to .): "artifacts/model.pkl"
+# When running from project root: "apps/artifacts/model.pkl"
+def get_model_path():
+    # Try the direct path first (works in Docker and when running from apps dir)
+    direct_path = os.path.join("artifacts", "model.pkl")
+    if os.path.exists(direct_path):
+        return direct_path
+    
+    # Try the full path (works when running from project root)
+    full_path = os.path.join("apps", "artifacts", "model.pkl")
+    if os.path.exists(full_path):
+        return full_path
+    
+    # Default to direct path if neither exists (for error handling)
+    return direct_path
+
+ARTIFACTS_PATH = get_model_path()
 
 # ===== Load artifacts sekali di import =====
+print(f"[DEBUG] Looking for model at: {ARTIFACTS_PATH}")
+print(f"[DEBUG] Current working directory: {os.getcwd()}")
+print(f"[DEBUG] Model file exists: {os.path.exists(ARTIFACTS_PATH)}")
+
 try:
     _pack = joblib.load(ARTIFACTS_PATH)
     algo = _pack["algo"]

@@ -12,4 +12,5 @@ scikit-surprise
 pandas
 prometheus-fastapi-instrumentator
 prometheus-client
+psutil
 numpy<2.0.0
