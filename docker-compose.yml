@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/Dockerfile
-    container_name: swiss-be-test
+    container_name: swiss-be-final
     ports:
       - "8001:8001"
     env_file:
