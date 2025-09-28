@@ -41,7 +41,7 @@ jobs:
         run: python apps/app/automation/modelling.py
 
       - name: Upload the model.pkl
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: model.pkl
           path: apps/artifacts/model.pkl
