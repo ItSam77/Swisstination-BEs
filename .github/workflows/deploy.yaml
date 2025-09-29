@@ -14,7 +14,6 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     
     steps:
       - name: Checkout code
@@ -30,6 +29,10 @@ jobs:
             # Navigate to deployment directory
             cd ${{ env.DEPLOY_PATH }}
             
+            # Create monitoring directory if it doesn't exist
+            mkdir -p monitoring
+            cd monitoring
+            
             # Create environment file for the application
             cat > .env <<EOF
             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
@@ -39,10 +42,6 @@ jobs:
             
             # Set proper permissions for env file
             chmod 600 .env
-            
-            # Create monitoring directory if it doesn't exist
-            mkdir -p monitoring
-            cd monitoring
             
             # Pull monitoring configuration files
             curl -o docker-compose.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/docker-compose.yml
