@@ -54,6 +54,15 @@ jobs:
           username: ${{ env.DOCKER_USERNAME }}
           password: ${{ env.DOCKER_PASSWORD }}
 
+      - name: Verify model file exists
+        run: |
+          ls -la apps/artifacts/
+          if [ ! -f "apps/artifacts/model.pkl" ]; then
+            echo "ERROR: model.pkl not found!"
+            exit 1
+          fi
+          echo "✅ model.pkl found and ready for Docker build"
+
       - name: Build and Push image to Docker Hub
         run: |
           docker build -f apps/Dockerfile -t ${{ env.IMAGE_NAME }} .

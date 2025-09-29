@@ -1,12 +1,83 @@
-name: Deploy to SSH Server
+# name: Deploy to VPS
 
-on:
-  push:
-    branches: [ main ]
+# on:
+#   push:
+#     branches: [ main ]
+#   workflow_dispatch:
+
+# env:
+#   DEPLOY_PATH: /root/UPancasila/77maStI
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
     
-  workflow_dispatch:
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+        
+#       - name: Deploy Monitoring to VPS
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ secrets.SSH_HOST }}
+#           username: ${{ secrets.SSH_USER }}
+#           password: ${{ secrets.SSH_PASSWORD }}
+#           script: |
+#             # Navigate to deployment directory
+#             cd ${{ env.DEPLOY_PATH }}
+            
+#             # Clone/pull only monitoring files if repo doesn't exist, otherwise just pull
+#             if [ ! -d ".git" ]; then
+#               git clone https://github.com/${{ github.repository }}.git temp_repo
+#               cp -r temp_repo/monitor .
+#               cp -r temp_repo/monitor-source .
+#               rm -rf temp_repo
+#             else
+#               git pull origin main
+#             fi
+            
+#             # Create monitoring-only docker-compose file
+#             cat > docker-compose-monitoring.yml <<EOF
+#             services:
+#               prometheus:
+#                 image: prom/prometheus:latest
+#                 container_name: prometheus1
+#                 ports:
+#                   - "8002:9090"
+#                 volumes:
+#                   - ./monitor/prometheus.yml:/etc/prometheus/prometheus.yml
+#                   - prometheus_data:/prometheus
+#                 command:
+#                   - '--config.file=/etc/prometheus/prometheus.yml'
+#                   - '--storage.tsdb.path=/prometheus'
+#                   - '--web.console.libraries=/etc/prometheus/console_libraries'
+#                   - '--web.console.templates=/etc/prometheus/consoles'
+#                   - '--storage.tsdb.retention.time=200h'
+#                   - '--web.enable-lifecycle'
+#                 networks:
+#                   - monitoring
+            
+#               grafana:
+#                 image: grafana/grafana:latest
+#                 container_name: grafana1
+#                 ports:
+#                   - "8003:3000"
+#                 volumes:
+#                   - grafana_data:/var/lib/grafana
+#                   - ./monitor/grafana:/etc/grafana/provisioning
+#                 environment:
+#                   - GF_SECURITY_ADMIN_PASSWORD=admin
+#                   - GF_USERS_ALLOW_SIGN_UP=false
+#                 networks:
+#                   - monitoring
+#             EOF
+            
+#             # Stop existing monitoring containers
+#             docker-compose -f docker-compose-monitoring.yml down || true
+            
+#             # Start monitoring services
+#             docker-compose -f docker-compose-monitoring.yml up -d
+            
+#             # Show running containers status
+#             docker-compose -f docker-compose-monitoring.yml ps
         

@@ -25,6 +25,9 @@ COPY ./apps/ .
 # Copy monitoring source code
 COPY ./monitor-source/ ../monitor-source/
 
+# Ensure artifacts directory exists (model will be generated during CI)
+RUN mkdir -p artifacts
+
 EXPOSE 8001
 
 CMD ["python", "main.py"]
