@@ -1,8 +1,6 @@
 services:
   apps:
-    build:
-      context: .
-      dockerfile: ./apps/Dockerfile
+    image: itsam77/swiss-be-final:latest
     container_name: swiss-be-final
     ports:
       - "8001:8001"
