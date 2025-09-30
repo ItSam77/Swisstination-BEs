@@ -38,6 +38,12 @@ jobs:
             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
             SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            
+            # Grafana Configuration
+            GF_SECURITY_ADMIN_USER=admin
+            GF_SECURITY_ADMIN_PASSWORD=admin123
+            GF_USERS_ALLOW_SIGN_UP=false
+            GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
             EOF
             
             # Set proper permissions for env file
@@ -81,12 +87,11 @@ jobs:
             # Pull the latest Docker image
             docker pull itsam77/swiss-be-final:latest
             
-            # Stop existing monitoring containers and remove volumes
-            docker-compose -f docker-compose.yml down -v || true
+            # Stop existing monitoring containers (keep volumes for data persistence)
+            docker-compose -f docker-compose.yml down || true
             
-            # Clean up any dangling containers and volumes
-            docker system prune -f || true
-            docker volume prune -f || true
+            # Clean up only dangling containers (preserve volumes)
+            docker container prune -f || true
             
             # Verify directory structure exists
             ls -la monitor/
@@ -99,11 +104,14 @@ jobs:
             file monitor/prometheus.yml
             file monitor/grafana/datasources/prometheus.yml
             
+            # Ensure Grafana data directory has proper permissions
+            docker volume inspect grafana_data >/dev/null 2>&1 || docker volume create grafana_data
+            
             # Start monitoring services
             docker-compose -f docker-compose.yml up -d
             
             # Wait a moment for containers to initialize
-            sleep 10
+            sleep 15
             
             # Check if Prometheus container failed to start and restart if needed
             if ! docker ps | grep -q "prometheus1.*Up"; then
