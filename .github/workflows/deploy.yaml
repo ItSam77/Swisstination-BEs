@@ -43,18 +43,19 @@ jobs:
             # Set proper permissions for env file
             chmod 600 .env
             
+            # Create directory structure for monitoring
+            mkdir -p monitor/grafana/datasources
+            mkdir -p monitor-source
             
             # Pull monitoring configuration files
             curl -o docker-compose.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/docker-compose.yml
             curl -o monitor/prometheus.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor/prometheus.yml
             
-            # Create monitor-source directory and pull files
-            mkdir -p monitor-source
+            # Pull monitor-source files
             curl -o monitor-source/collector.py https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor-source/collector.py
             curl -o monitor-source/metrics.py https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor-source/metrics.py
             
-            # Create grafana directory structure
-            mkdir -p monitor/grafana/datasources
+            # Pull grafana datasource configuration
             curl -o monitor/grafana/datasources/prometheus.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor/grafana/datasources/prometheus.yml
             
             # Pull the latest Docker image
