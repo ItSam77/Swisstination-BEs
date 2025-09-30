@@ -64,9 +64,30 @@ jobs:
             # Stop existing monitoring containers
             docker-compose -f docker-compose.yml down || true
             
+            # Clean up any dangling containers
+            docker system prune -f || true
+            
+            # Set proper permissions for config files
+            chmod 644 monitor/prometheus.yml
+            chmod 644 monitor/grafana/datasources/prometheus.yml
+            
             # Start monitoring services
             docker-compose -f docker-compose.yml up -d
             
+            # Wait a moment for containers to initialize
+            sleep 10
+            
+            # Check if Prometheus container failed to start and restart if needed
+            if ! docker ps | grep -q "prometheus1.*Up"; then
+              echo "Prometheus container not running, checking logs and restarting..."
+              docker logs prometheus1 || true
+              docker-compose -f docker-compose.yml restart prometheus || true
+              sleep 5
+            fi
+            
             # Show running containers status
             docker-compose -f docker-compose.yml ps
+            
+            # Show logs for any failed containers
+            docker-compose -f docker-compose.yml logs --tail=20
         
