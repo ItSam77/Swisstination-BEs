@@ -43,9 +43,7 @@ jobs:
             # Set proper permissions for env file
             chmod 600 .env
             
-            # Create monitor directory if it doesn't exist
-            mkdir -p monitor
-            cd monitor
+            
             
             # Pull monitoring configuration files
             curl -o docker-compose.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/docker-compose.yml
