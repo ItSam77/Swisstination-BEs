@@ -2,9 +2,8 @@ name: Deploy to VPS
 
 on:
   workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
+    workflows: ["Build"]   # pastikan nama workflow CI kamu memang "Build"
+    types: [completed]
     branches: [ main ]
   workflow_dispatch:
 
@@ -14,59 +13,49 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Deploy Monitoring to VPS
+
+      - name: Deploy to VPS (monitoring + backend)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           script: |
-            # Navigate to deployment directory
-            cd ${{ env.DEPLOY_PATH }}
-            
-            # Create monitoring directory if it doesn't exist
-            mkdir -p monitoring
-            cd monitoring
-            
-            # Create environment file for the application
+            set -e
+
+            # 1) Siapkan struktur direktori
+            mkdir -p "${{ env.DEPLOY_PATH }}/monitoring/prometheus"
+            mkdir -p "${{ env.DEPLOY_PATH }}/monitoring/grafana/datasources"
+            # mkdir -p "${{ env.DEPLOY_PATH }}/scripts"
+
+            cd "${{ env.DEPLOY_PATH }}"
+
+            # 2) Tulis .env DI ROOT (sejajar dengan docker-compose.yml)
             cat > .env <<EOF
             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-            SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}   # pakai KEY (bukan ANON) jika BE butuh service key
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             EOF
-            
-            # Set proper permissions for env file
             chmod 600 .env
-            
-            
-            
-            # Pull monitoring configuration files
-            curl -o docker-compose.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/docker-compose.yml
-            curl -o monitor/prometheus.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor/prometheus.yml
-            
-            # Create monitor-source directory and pull files
-            mkdir -p monitor-source
-            curl -o monitor-source/collector.py https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor-source/collector.py
-            curl -o monitor-source/metrics.py https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor-source/metrics.py
-            
-            # Create grafana directory structure
-            mkdir -p monitor/grafana/datasources
-            curl -o monitor/grafana/datasources/prometheus.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitor/grafana/datasources/prometheus.yml
-            
-            # Pull the latest Docker image
-            docker pull itsam77/swiss-be-final:latest
-            
-            # Stop existing monitoring containers
-            docker-compose -f docker-compose.yml down || true
-            
-            # Start monitoring services
-            docker-compose -f docker-compose.yml up -d
-            
-            # Show running containers status
-            docker-compose -f docker-compose.yml ps
-        
+
+            # 3) Ambil file compose & provisioning KE LOKASI YANG BENAR
+            curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/docker-compose.yml
+            curl -fsSL -o monitoring/prometheus/prometheus.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitoring/prometheus/prometheus.yml
+            curl -fsSL -o monitoring/grafana/datasources/datasource.yml https://raw.githubusercontent.com/ItSam77/Swisstination-BEs/main/monitoring/grafana/provisioning/datasources/datasource.yml
+
+
+            # 4) Pull image backend terbaru (pastikan nama image benar)
+            docker pull itsam77/swisstination-be:latest
+
+            # 5) Restart stack
+            # gunakan Docker Compose plugin modern
+            docker compose -f docker-compose.yml down || true
+            docker compose -f docker-compose.yml up -d
+
+            # 6) Status
+            docker compose -f docker-compose.yml ps
