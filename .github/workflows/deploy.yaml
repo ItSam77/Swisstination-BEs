@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  DEPLOY_PATH: /root/UPancasila/77maStI
+  DEPLOY_PATH: /root/ops/UPancasila/77maStI
 
 jobs:
   deploy:
